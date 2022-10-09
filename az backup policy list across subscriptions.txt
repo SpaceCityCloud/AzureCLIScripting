@@ -11,12 +11,12 @@ foreach ($s in $Subscriptions) {
     
     foreach ($v in $vaults) {
 
-	  Write-Host "Looking at Vault " $v.Name
+	Write-Host "Looking at Vault " $v.Name
         $policies = az backup policy list -g $v.resourceGroup -v $v.name | ConvertFrom-Json
 
         foreach ($p in $policies){
 
-		Write-Host "Looking at Policy " $p.Name
+	    Write-Host "Looking at Policy " $p.Name
             az backup policy list-associated-items -n $p.name -g $p.resourceGroup --vault-name $v.name --backup-management-type AzureIaasVM | ConvertFrom-Json
 
         }
