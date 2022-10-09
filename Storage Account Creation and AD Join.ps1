@@ -1,25 +1,25 @@
-﻿#Make SURE you have no blank lines in your CSV file. The script will glitch out if you have a superfluous blank line.
+# Make SURE you have no blank lines in your CSV file. The script will glitch out if you have a superfluous blank line.
 
 
-#CSV Format should be "storageAccountName","storageAccountResourceGroup","vNetName","vNetResourceGroup","storageAccountRegion","Subscription","privateEndpointSubnet","tag1","tag2","tag3","tag4","tag5","tag6","Application","fileShare"
-
- 
-
-#You will have to already have the AzFilesHybrid module installed for this to work as well.
+# CSV Format should be "storageAccountName","storageAccountResourceGroup","vNetName","vNetResourceGroup","storageAccountRegion","Subscription","privateEndpointSubnet","tag1","tag2","tag3","tag4","tag5","tag6","Application","fileShare"
 
  
 
-#.\CopyToPSPath.ps1
-
-#Import-Module -Name AzFilesHybrid
+# You will have to already have the AzFilesHybrid module installed for this to work as well.
 
  
 
-#Yes, you have to log into both the az cli and the Az powershell module. There is code in here that uses both.
+# .\CopyToPSPath.ps1
 
-#The user account running this ISE session must be one with Domain Admin rights to your internal AD if your normal user account does not have rights.
+# Import-Module -Name AzFilesHybrid
 
-#If your normal user account doesn't have the rights to do this (such as if you have independant Admin accounts) you can work around this running the below:
+ 
+
+# Yes, you have to log into both the az cli and the Az powershell module. There is code in here that uses both.
+
+# The user account running this ISE session must be one with Domain Admin rights to your internal AD if your normal user account does not have rights.
+
+# If your normal user account doesn't have the rights to do this (such as if you have independant Admin accounts) you can work around this running the below:
 #   Start-Process powershell.exe -Credential “Domain\SuperUser” -ArgumentList “Start-Process powershell_ise.exe -Verb runAs” 
 
 
@@ -74,7 +74,7 @@ import-csv .\storageAccountsToCreate.csv | foreach-object {
 
  
 
-    #variables for ACL/rights assignment
+    # variables for ACL/rights assignment
 
     $identity1 = 'xyz\xyz_server_admin'
 
@@ -96,7 +96,7 @@ import-csv .\storageAccountsToCreate.csv | foreach-object {
 
 
  
-    #Setting subscription context in both CLI and PowerShell
+    # Setting subscription context in both CLI and PowerShell
 
     az account set -s $storageaccountsub
 
@@ -254,7 +254,7 @@ import-csv .\storageAccountsToCreate.csv | foreach-object {
 
  
 
-    #The following code is why we have to run the ISE session as an account with AD Domain Admin rights.
+    # The following code is why we have to run the ISE session as an account with AD Domain Admin rights.
  
 
     Write-Host "Add Storage Account to the AD Group . . ."
@@ -282,7 +282,8 @@ import-csv .\storageAccountsToCreate.csv | foreach-object {
     $storageAccountKey = $SAkeys[0].value
 
 
-    #The below line is needed to resolve an issue with Kerberos authentication.
+    # The below lines were needed to resolve an issue with Kerberos authentication when we implemented it. Have never been able to figure out why, but it's one of those 
+    # "don't remove or else the whole thing breaks for some reason" type of deals.
 
     Write-Host "Pausing for 15 minutes prior to file share creation. Some AD sync issue."
 
@@ -296,7 +297,7 @@ import-csv .\storageAccountsToCreate.csv | foreach-object {
 
  
 
-    #Creating RSV for the File Share.
+    # Creating RSV for the File Share.
  
     Write-Host "Create Recovery Vault . . ."
 
@@ -310,9 +311,9 @@ import-csv .\storageAccountsToCreate.csv | foreach-object {
 
    
 
-    #Creating Backup Policy for the vault. Change your path to policy.json file as needed, but you must have a policy.json file for this to complete. 
-    #Simplest way to get a policy.json file is to create a backup policy on an existing vault and use "az backup policy show", then save the results 
-    #as a policy.json file. You can delete any id references in the file.
+    # Creating Backup Policy for the vault. Change your path to policy.json file as needed, but you must have a policy.json file for this to complete. 
+    # Simplest way to get a policy.json file is to manually create a backup policy on an existing vault and use "az backup policy show", then save the results 
+    # as a policy.json file. You can delete any id references in the file.
 
     Write-Host "Create Backup Policy . . ."
 
@@ -331,7 +332,7 @@ import-csv .\storageAccountsToCreate.csv | foreach-object {
         --workload-type AzureFileShare | ConvertFrom-Json
 
  
-    #Enabling the backup policy for the file share
+    # Enabling the backup policy for the file share
 
     Write-Host "Enable Backup for File Share . . ."
 
@@ -350,7 +351,7 @@ import-csv .\storageAccountsToCreate.csv | foreach-object {
     $OutputText += "$newFileShare  `r`n"
 
  
-    #Adding ACL permissions to the File Share.
+    # Adding ACL permissions to the File Share.
 
     Write-Host "Add ACL permissions to File Share . . ."
 
@@ -376,11 +377,12 @@ import-csv .\storageAccountsToCreate.csv | foreach-object {
 
     write-Output $storageAccount_info | out-file -append -filepath .\storage-sakeys.csv
     
-    #We collected the storage account keys so that we could ingest them into our migration program at a later date. No, that's not secure.
-    #Yes, that's how we had to do it to make the chosen program for the migrations actually work. I didn't pick the migration tool. I just made it work.
+    # We collected the storage account keys so that we could ingest them into our migration program at a later date. No, that's not secure.
+    # Yes, that's how we had to do it to make the chosen program for the migrations actually work. I didn't pick the migration tool. I just made it work.
 
- 
 
     Read-Host -Prompt "Press Enter to continue to the next account, or end the script if there are no more accounts to be created."
+    # The above line could be commented out if you want to loop through faster, though with a 15-minute pause in each loop, it's almost easier to just have this
+    # to force you to pay attention to loop completion.
 
 }
