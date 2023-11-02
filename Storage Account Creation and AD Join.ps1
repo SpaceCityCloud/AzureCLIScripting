@@ -1,7 +1,7 @@
 # Make SURE you have no blank lines in your CSV file. The script will glitch out if you have a superfluous blank line.
 
 
-# CSV Format should be "storageAccountName","storageAccountResourceGroup","vNetName","vNetResourceGroup","storageAccountRegion","Subscription","privateEndpointSubnet","tag1","tag2","tag3","tag4","tag5","tag6","Application","fileShare"
+# CSV Format should be "storageAccountName","storageAccountResourceGroup","vNetName","vNetResourceGroup","storageAccountRegion","Subscription","privateEndpointSubnet","tag1","tag2","tag3","tag4","tag5","tag6","tag7","Application","fileShare"
 
  
 
